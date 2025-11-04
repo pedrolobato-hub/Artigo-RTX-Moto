@@ -12,3 +12,14 @@ Gráficos Médias e DMS
 Letrinhas
 	Procurar bibliotecas pra isso
 
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Aplicar dois tipos de formatação:
+
+Inicialmente:
+É normal? → Anova + Teste T (Para amostras repetidas)
+Não é normal? → Teste de Friedman + Wilcoxon
+
+Estudar toda a parte teorica sobre → Aplicar no código
+Estudar como Samara e Ricardo fizeram isso
