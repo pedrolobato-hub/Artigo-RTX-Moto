@@ -23,3 +23,13 @@ Não é normal? → Teste de Friedman + Wilcoxon
 
 Estudar toda a parte teorica sobre → Aplicar no código
 Estudar como Samara e Ricardo fizeram isso
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Reuniao 9 (11/11/2025):
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Analisar diferenças entre o teste de Nemenyi e Wilcoxon 🤔
+
+Implementar Letrinhas → Max tem código que ele já fez (tá no drive)
+
+
