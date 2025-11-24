@@ -33,3 +33,14 @@ Analisar diferenças entre o teste de Nemenyi e Wilcoxon 🤔
 Implementar Letrinhas → Max tem código que ele já fez (tá no drive)
 
 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Reuniao 10 (24/11/2025):
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+→ Código Sintético 💻
+→ Com tudo o que realmente precisamos em um .py
+→ Figuras em pasta separada
+→ Pec Altimétrica de acordo com a PEC (Distancia ❌ Valores para raster ✅)
+→ Estudar Nemenyi
+→ Não automatizar letrinhas (fazer na mão)
+
