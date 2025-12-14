@@ -10,14 +10,37 @@ import string
 from scipy.stats import chi2
 import os
 
+#=======================================================================
+#1. CAMINHOS E IMPORTANDO DADOS 
+#=======================================================================
+script_dir = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(script_dir, 'diferenca_altimetria_clean.xlsx')
+df_alti = pd.read_excel(file_path)
 
-PASTA_GRAFICOS = "GRAFICOS"
+def escrever_no_arquivo(texto, arquivo=ARQUIVO_RESULTADOS):
+    with open(arquivo, "a", encoding="utf-8") as f:
+        print(texto, file=f)
+
+with open(ARQUIVO_RESULTADOS, "w", encoding="utf-8") as f:
+    print("=== RESULTADOS DA ANÁLISE DE DIFERENÇAS ALTIMÉTRICAS ===\n", file=f)
+
+# --- Salvar cabeçalhos dos DataFrames ---
+escrever_no_arquivo("df_alti.head():")
+escrever_no_arquivo(df_alti.head().to_string())
+
+escrever_no_arquivo("\ndf_diff.head():")
+escrever_no_arquivo(df_diff.head().to_string())
+
+escrever_no_arquivo("\ndf_diff_abs.head():")
+escrever_no_arquivo(df_diff_abs.head().to_string())
+
+script_dir = Path(__file__).parent
+PASTA_RESULTADOS = script_dir / "resultados"
+PASTA_RESULTADOS.mkdir(exist_ok=True)
+ARQUIVO_RESULTADOS = PASTA_RESULTADOS / "resultados.txt"
+
+PASTA_GRAFICOS = os.path.join(script_dir, "graficos")
 os.makedirs(PASTA_GRAFICOS, exist_ok=True)
-
-#=======================================================================
-#1. IMPORTANDO DADOS 
-#=======================================================================
-df_alti = pd.read_excel('diferenca_altimetria_clean.xlsx')
 
 multiplicador = 1   # 1 = metros | 100 = centímetros | 1000 = milímetros
 print(f"Usando multiplicador: {multiplicador}\n")
@@ -180,7 +203,6 @@ def plot_comparativo_todos(df, trats_list, metodo='percentil', save=False):
     plt.tight_layout()
     if save:
         fig.savefig(f"{PASTA_GRAFICOS}/GRAFICO_DE_PERFIL.png", dpi=300, bbox_inches='tight')
-    plt.show()
     plt.close(fig)
 
 # Chamada do comparativo
@@ -245,7 +267,6 @@ ax2.grid(True, linestyle='--', alpha=0.7)
 
 plt.tight_layout()
 plt.savefig(f"{PASTA_GRAFICOS}/boxplot_com_fundo_violin.png", dpi=300, bbox_inches='tight')
-plt.show()
 
 #========================================================================================
 ### 4. GRÁFICO DE DISTRIBUIÇÃO DE FREQUÊNCIA
@@ -360,7 +381,6 @@ plt.xlim(
 plt.grid(True, linestyle=':')
 plt.legend()
 plt.savefig(f"{PASTA_GRAFICOS}/frequencia_acumulada.png", dpi=300, bbox_inches='tight')
-plt.show()
 
 #=======================================================================
 
@@ -404,7 +424,6 @@ ax = plt.gca()
 ax.set_facecolor("#f8f8f8")
 
 plt.savefig(f"{PASTA_GRAFICOS}/Medianas_Quartil.png", dpi=300, bbox_inches='tight')
-plt.show()
 
 #=======================================================================
 # TESTES COM TABELA
@@ -537,7 +556,9 @@ tabela_wilcoxon = pd.DataFrame(
 print("===== MATRIZ DE COMPARAÇÃO MÚLTIPLA — WILCOXON (SINAL + ABS) =====")
 display(tabela_wilcoxon)
 
+#=======================================================================
 # 10. TESTE DE NEMENYI
+#=======================================================================
 
 # ---------- Função para calcular o Nemenyi ----------
 def nemenyi_pairwise(df):
@@ -600,8 +621,9 @@ print(f"Critical Difference (abs):   {CD_abs:.5f}\n")
 
 display(tabela_final)
 
-#=====================================================================================
-# 16. PEC ALTIMÉTRICO 
+#=======================================================================
+# 1. PEC ALTIMÉTRICO 
+#=======================================================================
 
 # 1) CONFIGURAÇÃO 
 equid = 0.1    # Equidistancia
