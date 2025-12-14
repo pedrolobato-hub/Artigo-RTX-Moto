@@ -11,20 +11,64 @@ from scipy.stats import chi2
 import os
 
 #=======================================================================
-#1. CAMINHOS E IMPORTANDO DADOS 
+# 1.1 CAMINHOS, IMPORTAÇÕES E CONFIGURAÇÕES INICIAIS
 #=======================================================================
-script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'diferenca_altimetria_clean.xlsx')
-df_alti = pd.read_excel(file_path)
+import os
+import pandas as pd
+from pathlib import Path
 
-def escrever_no_arquivo(texto, arquivo=ARQUIVO_RESULTADOS):
-    with open(arquivo, "a", encoding="utf-8") as f:
+# Diretório onde o script está localizado
+script_dir = Path(__file__).parent
+
+# Pastas de saída
+PASTA_RESULTADOS = script_dir / "resultados"
+PASTA_GRAFICOS = script_dir / "RESULTS"
+
+# Cria as pastas se não existirem
+PASTA_RESULTADOS.mkdir(exist_ok=True)
+PASTA_GRAFICOS.mkdir(exist_ok=True)
+
+# Caminho do arquivo de resultados
+ARQUIVO_RESULTADOS = PASTA_RESULTADOS / "resultados.txt"
+
+# Função para escrever no arquivo de resultados
+def escrever_no_arquivo(texto):
+    with open(ARQUIVO_RESULTADOS, "a", encoding="utf-8") as f:
         print(texto, file=f)
 
+# Inicializa (e limpa) o arquivo de resultados
 with open(ARQUIVO_RESULTADOS, "w", encoding="utf-8") as f:
     print("=== RESULTADOS DA ANÁLISE DE DIFERENÇAS ALTIMÉTRICAS ===\n", file=f)
 
-# --- Salvar cabeçalhos dos DataFrames ---
+# Carrega o arquivo de dados
+file_path = script_dir / 'diferenca_altimetria_clean.xlsx'
+df_alti = pd.read_excel(file_path)
+
+# Configurações
+multiplicador = 1  # 1 = metros | 100 = cm | 1000 = mm
+escrever_no_arquivo(f"Usando multiplicador: {multiplicador}\n")
+
+#=======================================================================
+# 1.2 PROCESSAMENTO DOS DATAFRAMES
+#=======================================================================
+# Lista de colunas
+col_list = df_alti.columns.tolist()
+
+# Tratamentos (colunas a partir da terceira: V1, V2, V3, ...)
+trats = col_list[2:]
+const = 0.138  # constante de correção
+
+# DataFrame das diferenças
+df_diff = pd.DataFrame(index=df_alti.index)
+for trat in trats:
+    df_diff[f"{trat}_diff"] = (df_alti[trat] - df_alti['NIV'] + const) * multiplicador
+
+# DataFrame das diferenças em módulo (valor absoluto)
+df_diff_abs = df_diff.abs()
+
+#=======================================================================
+# 1.3 SALVANDO VISUALIZAÇÕES INICIAIS NO ARQUIVO .TXT
+#=======================================================================
 escrever_no_arquivo("df_alti.head():")
 escrever_no_arquivo(df_alti.head().to_string())
 
@@ -33,39 +77,6 @@ escrever_no_arquivo(df_diff.head().to_string())
 
 escrever_no_arquivo("\ndf_diff_abs.head():")
 escrever_no_arquivo(df_diff_abs.head().to_string())
-
-script_dir = Path(__file__).parent
-PASTA_RESULTADOS = script_dir / "resultados"
-PASTA_RESULTADOS.mkdir(exist_ok=True)
-ARQUIVO_RESULTADOS = PASTA_RESULTADOS / "resultados.txt"
-
-PASTA_GRAFICOS = os.path.join(script_dir, "graficos")
-os.makedirs(PASTA_GRAFICOS, exist_ok=True)
-
-multiplicador = 1   # 1 = metros | 100 = centímetros | 1000 = milímetros
-print(f"Usando multiplicador: {multiplicador}\n")
-
-#DATAFRAME DADOS ORIGINAIS (DF_ALTI)
-col_list = df_alti.columns.tolist()
-
-#DATAFRAME DAS DIFERENÇAS (DF_DIFF)
-trats = col_list[2:]
-const = 0.138
-
-df_diff = pd.DataFrame(index=df_alti.index)
-
-for trat in trats:
-    df_diff[f"{trat}_diff"] = df_alti[trat] - df_alti['NIV'] + const
-
-# Aplicar multiplicador (MÁGICA AQUI)
-df_diff = df_diff * multiplicador
-
-#DATAFRAME DAS DIFERENÇAS EM MODULO (DF_DIFF_ABS)
-df_diff_abs = df_diff.abs()
-
-print("\ndf_alti.head():\n", df_alti.head())
-print("\ndf_diff.head():\n", df_diff.head())
-print("\ndf_diff_abs.head():\n", df_diff_abs.head())
 
 
 #=======================================================================
@@ -159,7 +170,6 @@ def plot_niv_vs_trat(df, trat_col, metodo='percentil', nome=None, save=False):
         fname = f"perfil_NIV_vs_{trat_col}.png"
         fig.savefig(fname, dpi=300, bbox_inches='tight')
 
-    plt.show()
     plt.close(fig)
 
 # --- Gerar gráficos para cada coluna ---
@@ -202,7 +212,7 @@ def plot_comparativo_todos(df, trats_list, metodo='percentil', save=False):
 
     plt.tight_layout()
     if save:
-        fig.savefig(f"{PASTA_GRAFICOS}/GRAFICO_DE_PERFIL.png", dpi=300, bbox_inches='tight')
+        fig.savefig(f"{PASTA_GRAFICOS}/Grafico_de_perfil.png", dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 # Chamada do comparativo
@@ -266,7 +276,7 @@ ax2.set_xticklabels(df_diff_abs.columns, rotation=45)
 ax2.grid(True, linestyle='--', alpha=0.7)
 
 plt.tight_layout()
-plt.savefig(f"{PASTA_GRAFICOS}/boxplot_com_fundo_violin.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"{PASTA_GRAFICOS}/Boxplot_com_fundo_violin.png", dpi=300, bbox_inches='tight')
 
 #========================================================================================
 ### 4. GRÁFICO DE DISTRIBUIÇÃO DE FREQUÊNCIA
@@ -317,6 +327,7 @@ plt.plot(bin_v1, freq_v1, label='V1_diff')
 plt.plot(bin_v2, freq_v2, label='V2_diff')
 plt.plot(bin_v3, freq_v3, label='V3_diff')
 
+plt.title("Gráfico de Distribuição de Frequência", fontsize=12)
 plt.xlabel('Erro (m)')
 plt.ylabel('Frequência (%)')
 
@@ -324,11 +335,10 @@ plt.ylim(0, max(np.concatenate((freq_v1, freq_v2, freq_v3))) * 1.1)
 plt.xlim(xmin_global, max(np.concatenate((bin_v1, bin_v2, bin_v3))) * 1.1)
 
 # --- Salvar figura ---
-plt.savefig(f"{PASTA_GRAFICOS}/distribuicao_frequencia.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"{PASTA_GRAFICOS}/Distribuicao_frequencia.png", dpi=300, bbox_inches='tight')
 
 plt.grid(True, linestyle=':')
 plt.legend()
-plt.show()
 
 #===============================================================================
 
@@ -369,6 +379,7 @@ plt.plot(bin_v1c, cum_v1c, label='V1_diff_abs')
 plt.plot(bin_v2c, cum_v2c, label='V2_diff_abs')
 plt.plot(bin_v3c, cum_v3c, label='V3_diff_abs')
 
+plt.title("Gráfico de Distribuição de Frequência Acumulada", fontsize=12)
 plt.xlabel('Erro Absoluto (m)')
 plt.ylabel('Frequência Acumulada (%)')
 
@@ -380,7 +391,7 @@ plt.xlim(
 
 plt.grid(True, linestyle=':')
 plt.legend()
-plt.savefig(f"{PASTA_GRAFICOS}/frequencia_acumulada.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"{PASTA_GRAFICOS}/Frequencia_acumulada.png", dpi=300, bbox_inches='tight')
 
 #=======================================================================
 
@@ -423,7 +434,7 @@ plt.margins(x=0.15, y=0.18)
 ax = plt.gca()
 ax.set_facecolor("#f8f8f8")
 
-plt.savefig(f"{PASTA_GRAFICOS}/Medianas_Quartil.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"{PASTA_GRAFICOS}/Medianas_quartil.png", dpi=300, bbox_inches='tight')
 
 #=======================================================================
 # TESTES COM TABELA
