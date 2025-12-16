@@ -9,36 +9,17 @@ from scipy.stats import wilcoxon
 import string
 from scipy.stats import chi2
 import os
+from pathlib import Path
+from scipy.stats import shapiro
 
 #=======================================================================
 # 1.1 CAMINHOS, IMPORTAÇÕES E CONFIGURAÇÕES INICIAIS
 #=======================================================================
-import os
-import pandas as pd
-from pathlib import Path
 
 # Diretório onde o script está localizado
 script_dir = Path(__file__).parent
-
-# Pastas de saída
-PASTA_RESULTADOS = script_dir / "resultados"
-PASTA_GRAFICOS = script_dir / "RESULTS"
-
-# Cria as pastas se não existirem
-PASTA_RESULTADOS.mkdir(exist_ok=True)
-PASTA_GRAFICOS.mkdir(exist_ok=True)
-
-# Caminho do arquivo de resultados
-ARQUIVO_RESULTADOS = PASTA_RESULTADOS / "resultados.txt"
-
-# Função para escrever no arquivo de resultados
-def escrever_no_arquivo(texto):
-    with open(ARQUIVO_RESULTADOS, "a", encoding="utf-8") as f:
-        print(texto, file=f)
-
-# Inicializa (e limpa) o arquivo de resultados
-with open(ARQUIVO_RESULTADOS, "w", encoding="utf-8") as f:
-    print("=== RESULTADOS DA ANÁLISE DE DIFERENÇAS ALTIMÉTRICAS ===\n", file=f)
+pasta_resultados = script_dir / "RESULTS"
+pasta_resultados.mkdir(exist_ok=True)
 
 # Carrega o arquivo de dados
 file_path = script_dir / 'diferenca_altimetria_clean.xlsx'
@@ -46,7 +27,6 @@ df_alti = pd.read_excel(file_path)
 
 # Configurações
 multiplicador = 1  # 1 = metros | 100 = cm | 1000 = mm
-escrever_no_arquivo(f"Usando multiplicador: {multiplicador}\n")
 
 #=======================================================================
 # 1.2 PROCESSAMENTO DOS DATAFRAMES
@@ -69,6 +49,16 @@ df_diff_abs = df_diff.abs()
 #=======================================================================
 # 1.3 SALVANDO VISUALIZAÇÕES INICIAIS NO ARQUIVO .TXT
 #=======================================================================
+arquivo_resultados_txt = pasta_resultados / "analise_altimetrica.txt"
+arquivo_saida = open(arquivo_resultados_txt, "w", encoding="utf-8")
+
+def escrever_no_arquivo(conteudo):
+    arquivo_saida.write(str(conteudo) + "\n")
+    arquivo_saida.flush()
+                
+escrever_no_arquivo("=== RESULTADOS DA ANÁLISE DE DIFERENÇAS ALTIMÉTRICAS ===")
+escrever_no_arquivo("")
+
 escrever_no_arquivo("df_alti.head():")
 escrever_no_arquivo(df_alti.head().to_string())
 
@@ -77,7 +67,6 @@ escrever_no_arquivo(df_diff.head().to_string())
 
 escrever_no_arquivo("\ndf_diff_abs.head():")
 escrever_no_arquivo(df_diff_abs.head().to_string())
-
 
 #=======================================================================
 #2. GRÁFICOS 
@@ -212,7 +201,7 @@ def plot_comparativo_todos(df, trats_list, metodo='percentil', save=False):
 
     plt.tight_layout()
     if save:
-        fig.savefig(f"{PASTA_GRAFICOS}/Grafico_de_perfil.png", dpi=300, bbox_inches='tight')
+        fig.savefig(f"{pasta_resultados}/Grafico_de_perfil.png", dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 # Chamada do comparativo
@@ -276,7 +265,7 @@ ax2.set_xticklabels(df_diff_abs.columns, rotation=45)
 ax2.grid(True, linestyle='--', alpha=0.7)
 
 plt.tight_layout()
-plt.savefig(f"{PASTA_GRAFICOS}/Boxplot_com_fundo_violin.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"{pasta_resultados}/Boxplot_com_fundo_violin.png", dpi=300, bbox_inches='tight')
 
 #========================================================================================
 ### 4. GRÁFICO DE DISTRIBUIÇÃO DE FREQUÊNCIA
@@ -335,7 +324,7 @@ plt.ylim(0, max(np.concatenate((freq_v1, freq_v2, freq_v3))) * 1.1)
 plt.xlim(xmin_global, max(np.concatenate((bin_v1, bin_v2, bin_v3))) * 1.1)
 
 # --- Salvar figura ---
-plt.savefig(f"{PASTA_GRAFICOS}/Distribuicao_frequencia.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"{pasta_resultados}/Distribuicao_frequencia.png", dpi=300, bbox_inches='tight')
 
 plt.grid(True, linestyle=':')
 plt.legend()
@@ -391,7 +380,7 @@ plt.xlim(
 
 plt.grid(True, linestyle=':')
 plt.legend()
-plt.savefig(f"{PASTA_GRAFICOS}/Frequencia_acumulada.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"{pasta_resultados}/Frequencia_acumulada.png", dpi=300, bbox_inches='tight')
 
 #=======================================================================
 
@@ -434,7 +423,7 @@ plt.margins(x=0.15, y=0.18)
 ax = plt.gca()
 ax.set_facecolor("#f8f8f8")
 
-plt.savefig(f"{PASTA_GRAFICOS}/Medianas_quartil.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"{pasta_resultados}/Medianas_quartil.png", dpi=300, bbox_inches='tight')
 
 #=======================================================================
 # TESTES COM TABELA
@@ -466,6 +455,9 @@ df_normalidade = testar_normalidade_df(df_diff)
 # --- EXIBIÇÃO ---
 print("===== RESULTADOS DO TESTE DE NORMALIDADE (Shapiro–Wilk) =====")
 print(df_normalidade)
+escrever_no_arquivo("===== RESULTADOS DO TESTE DE NORMALIDADE (Shapiro–Wilk) =====")
+escrever_no_arquivo(df_normalidade.to_string(index=False))
+
 
 # 7. TESTES DE COMPARAÇÃO DE MÉDIAS (NÃO PARAMÉTRICOS)
 # Usando: Teste de Friedman + Testes de Wilcoxon pareados
@@ -519,7 +511,6 @@ else:
 # --- Armazenar tudo em um DataFrame (útil para exportar ao relatório) ---
 df_resultados = pd.DataFrame(resultados_wilcoxon)
 print("\n===== RESUMO DOS TESTES DE WILCOXON =====")
-display(df_resultados)
 
 # 9. MATRIZ DE COMPARAÇÃO MÚLTIPLA (WILCOXON)
 
@@ -565,7 +556,6 @@ tabela_wilcoxon = pd.DataFrame(
 )
 
 print("===== MATRIZ DE COMPARAÇÃO MÚLTIPLA — WILCOXON (SINAL + ABS) =====")
-display(tabela_wilcoxon)
 
 #=======================================================================
 # 10. TESTE DE NEMENYI
@@ -630,8 +620,6 @@ print("===== TESTE DE NEMENYI — COM SINAL × ABS =====\n")
 print(f"Critical Difference (sinal): {CD_sinal:.5f}")
 print(f"Critical Difference (abs):   {CD_abs:.5f}\n")
 
-display(tabela_final)
-
 #=======================================================================
 # 1. PEC ALTIMÉTRICO 
 #=======================================================================
@@ -677,4 +665,5 @@ pec_classes["Conclusão"] = conclusoes
 
 # 5) RESULTADO FINAL
 print("===== CLASSIFICAÇÃO PEC ALTIMÉTRICA =====")
-display(pec_classes)
+
+arquivo_saida.close()

@@ -1,7 +1,5 @@
 === RESULTADOS DA ANÁLISE DE DIFERENÇAS ALTIMÉTRICAS ===
 
-Usando multiplicador: 1
-
 df_alti.head():
    PT       NIV         V1        V2         V3
 0   1  804.9540  804.81171  804.8190  804.78698
@@ -25,3 +23,8 @@ df_diff_abs.head():
 2  0.00855   0.0134  0.01638
 3  0.01805   0.0070  0.02846
 4  0.00164   0.0199  0.02661
+===== RESULTADOS DO TESTE DE NORMALIDADE (Shapiro–Wilk) =====
+ Coluna        W        p             Resultado
+V1_diff 0.985407 0.326118     Normal (p > 0.05)
+V2_diff 0.964324 0.007429 Não normal (p < 0.05)
+V3_diff 0.985956 0.357417     Normal (p > 0.05)
