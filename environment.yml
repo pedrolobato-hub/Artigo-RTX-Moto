@@ -1,0 +1,9 @@
+name: rtx_moto
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=1.26.4
+  - pandas=2.2.2
+  - matplotlib=3.9.2
+  - scipy=1.13.1

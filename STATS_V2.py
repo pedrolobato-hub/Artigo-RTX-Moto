@@ -2,10 +2,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy import stats
-import scipy.stats as stats
-from math import sqrt
 from scipy.stats import wilcoxon, friedmanchisquare, chi2, shapiro
+from math import sqrt
 import string
 import os
 from pathlib import Path
