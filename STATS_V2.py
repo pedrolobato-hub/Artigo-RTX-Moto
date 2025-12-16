@@ -5,12 +5,10 @@ import pandas as pd
 from scipy import stats
 import scipy.stats as stats
 from math import sqrt
-from scipy.stats import wilcoxon
+from scipy.stats import wilcoxon, friedmanchisquare, chi2, shapiro
 import string
-from scipy.stats import chi2
 import os
 from pathlib import Path
-from scipy.stats import shapiro
 
 #=======================================================================
 # 1.1 CAMINHOS, IMPORTAÇÕES E CONFIGURAÇÕES INICIAIS
@@ -458,104 +456,100 @@ print(df_normalidade)
 escrever_no_arquivo("===== RESULTADOS DO TESTE DE NORMALIDADE (Shapiro–Wilk) =====")
 escrever_no_arquivo(df_normalidade.to_string(index=False))
 
-
-# 7. TESTES DE COMPARAÇÃO DE MÉDIAS (NÃO PARAMÉTRICOS)
-# Usando: Teste de Friedman + Testes de Wilcoxon pareados
-
-from scipy.stats import friedmanchisquare, wilcoxon
-import pandas as pd
-
-# --- Teste de Friedman (comparação global entre os três grupos) ---
+# -----------------------------------------------------------------------
+#           TESTES DE COMPARAÇÃO DE MÉDIAS (NÃO PARAMÉTRICOS)
+# -----------------------------------------------------------------------
+# 7. TESTE DE FRIEDMAN + WILCOXON (apenas com os dados com sinal)
+# -----------------------------------------------------------------------
 stat_friedman, p_friedman = friedmanchisquare(
     df_diff['V1_diff'],
     df_diff['V2_diff'],
     df_diff['V3_diff']
 )
 
+# Exibe no console
 print("\n===== TESTE DE FRIEDMAN =====")
 print(f"Estatística Q = {stat_friedman:.6f}")
 print(f"p-valor = {p_friedman:.6f}")
-
 if p_friedman < 0.05:
     print("→ Diferença significativa entre os grupos (p < 0.05).")
 else:
     print("→ NÃO há diferença significativa entre os grupos (p ≥ 0.05).")
 
-# --- Executa Wilcoxon automaticamente se o Friedman for significativo ---
-pares = [
-    ('V1', 'V2'),
-    ('V1', 'V3'),
-    ('V2', 'V3')
-]
-
-resultados_wilcoxon = []
-
+# Salva no arquivo .txt
+escrever_no_arquivo("\n===== TESTE DE FRIEDMAN =====")
+escrever_no_arquivo(f"Estatística Q = {stat_friedman:.6f}")
+escrever_no_arquivo(f"p-valor = {p_friedman:.6f}")
 if p_friedman < 0.05:
-    print("\n===== TESTES DE WILCOXON (PÓS-TESTES) =====")
-    for a, b in pares:
-        stat_w, p_w = wilcoxon(df_diff[f"{a}_diff"], df_diff[f"{b}_diff"])
-        resultado = {
-            "Comparação": f"{a} × {b}",
+    escrever_no_arquivo("→ Diferença significativa entre os grupos (p < 0.05).")
+else:
+    escrever_no_arquivo("→ NÃO há diferença significativa entre os grupos (p ≥ 0.05).")
+
+# -----------------------------------------------------------------------
+# 2. TESTES DE WILCOXON (só se Friedman for significativo)
+# -----------------------------------------------------------------------
+if p_friedman < 0.05:
+    colunas = ['V1_diff', 'V2_diff', 'V3_diff']
+    pares_nomes = [('V1', 'V2'), ('V1', 'V3'), ('V2', 'V3')]
+
+    # -------------------------------------------------
+    # 2a. Wilcoxon com sinal
+    # -------------------------------------------------
+    resultados_sinal = []
+    for idx, (nome1, nome2) in enumerate(pares_nomes):
+        c1, c2 = colunas[idx], colunas[idx + 1] if idx == 0 else (colunas[0] if idx == 1 else colunas[1])
+        # Melhor: use combinações explícitas
+    # Vamos refazer com zip seguro:
+    combinacoes = [
+        ('V1_diff', 'V2_diff', 'V1', 'V2'),
+        ('V1_diff', 'V3_diff', 'V1', 'V3'),
+        ('V2_diff', 'V3_diff', 'V2', 'V3')
+    ]
+
+    resultados_sinal = []
+    resultados_abs = []
+
+    for c1, c2, n1, n2 in combinacoes:
+        # --- Sinal ---
+        stat_w, p_w = wilcoxon(df_diff[c1], df_diff[c2])
+        concl = "Diferença significativa" if p_w < 0.05 else "Sem diferença significativa"
+        resultados_sinal.append({
+            "Comparação": f"{n1} × {n2}",
             "Estatística W": stat_w,
             "p-valor": p_w,
-            "Conclusão": "Diferença significativa" if p_w < 0.05 else "Sem diferença significativa"
-        }
-        resultados_wilcoxon.append(resultado)
-        print(f"\nComparação {a} × {b}:")
-        print(f"  Estatística W = {stat_w:.6f}")
-        print(f"  p-valor = {p_w:.6f}")
-        print(f"  → {resultado['Conclusão']}")
+            "Conclusão": concl
+        })
+
+        # --- Absoluto ---
+        stat_w_abs, p_w_abs = wilcoxon(df_diff_abs[c1], df_diff_abs[c2])
+        concl_abs = "Diferença significativa" if p_w_abs < 0.05 else "Sem diferença significativa"
+        resultados_abs.append({
+            "Comparação (abs)": f"{n1} × {n2}",
+            "W (abs)": stat_w_abs,
+            "p-valor (abs)": p_w_abs,
+            "Conclusão (abs)": concl_abs
+        })
+
+    # Salvar resultados do sinal
+    df_wilcoxon_sinal = pd.DataFrame(resultados_sinal)
+    print("\n===== RESUMO DOS TESTES DE WILCOXON COM SINAL =====")
+    print(df_wilcoxon_sinal.to_string(index=False))
+    escrever_no_arquivo("\n===== RESUMO DOS TESTES DE WILCOXON COM SINAL =====")
+    escrever_no_arquivo(df_wilcoxon_sinal.to_string(index=False))
+
+    # Salvar resultados do absoluto
+    df_wilcoxon_abs = pd.DataFrame(resultados_abs)
+    print("\n===== RESUMO DOS TESTES DE WILCOXON ABSOLUTOS =====")
+    print(df_wilcoxon_abs.to_string(index=False))
+    escrever_no_arquivo("\n===== RESUMO DOS TESTES DE WILCOXON ABSOLUTOS =====")
+    escrever_no_arquivo(df_wilcoxon_abs.to_string(index=False))
+
 else:
-    print("\nPós-testes de Wilcoxon não realizados (Friedman não significativo).")
+    # Friedman não significativo → pula Wilcoxon
+    msg = "\nPós-testes de Wilcoxon não realizados (Friedman não significativo)."
+    print(msg)
+    escrever_no_arquivo(msg)
 
-# --- Armazenar tudo em um DataFrame (útil para exportar ao relatório) ---
-df_resultados = pd.DataFrame(resultados_wilcoxon)
-print("\n===== RESUMO DOS TESTES DE WILCOXON =====")
-
-# 9. MATRIZ DE COMPARAÇÃO MÚLTIPLA (WILCOXON)
-
-df_sinal = df_diff.copy()        # V1_diff, V2_diff, V3_diff
-df_abs   = df_diff_abs.copy()    # V1_diff_abs, V2_diff_abs, V3_diff_abs
-
-colunas = df_sinal.columns.tolist()
-
-resultados = []
-
-for i in range(len(colunas)):
-    for j in range(i + 1, len(colunas)):
-
-        # --- nomes das colunas ---
-        c1 = colunas[i]
-        c2 = colunas[j]
-
-        # ============================
-        # TESTE WILCOXON — COM SINAL
-        # ============================
-        w_sinal, p_sinal = stats.wilcoxon(df_sinal[c1], df_sinal[c2])
-        concl_sinal = "Diferença significativa" if p_sinal < 0.05 else "Sem diferença"
-
-        # ============================
-        # TESTE WILCOXON — ABSOLUTO
-        # ============================
-        w_abs, p_abs = stats.wilcoxon(df_abs[c1], df_abs[c2])
-        concl_abs = "Diferença significativa" if p_abs < 0.05 else "Sem diferença"
-
-        # Guarda tudo em uma única linha
-        resultados.append([
-            f"{c1} × {c2}", w_sinal, p_sinal, concl_sinal,
-            f"{c1}_abs × {c2}_abs", w_abs, p_abs, concl_abs
-        ])
-
-# Converte para DataFrame
-tabela_wilcoxon = pd.DataFrame(
-    resultados,
-    columns=[
-        "Comparação (sinal)", "W (sinal)", "p-valor (sinal)", "Conclusão (sinal)",
-        "Comparação (abs)", "W (abs)", "p-valor (abs)", "Conclusão (abs)"
-    ]
-)
-
-print("===== MATRIZ DE COMPARAÇÃO MÚLTIPLA — WILCOXON (SINAL + ABS) =====")
 
 #=======================================================================
 # 10. TESTE DE NEMENYI

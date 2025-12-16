@@ -28,3 +28,20 @@ df_diff_abs.head():
 V1_diff 0.985407 0.326118     Normal (p > 0.05)
 V2_diff 0.964324 0.007429 Não normal (p < 0.05)
 V3_diff 0.985956 0.357417     Normal (p > 0.05)
+
+===== TESTE DE FRIEDMAN =====
+Estatística Q = 117.725490
+p-valor = 0.000000
+→ Diferença significativa entre os grupos (p < 0.05).
+
+===== RESUMO DOS TESTES DE WILCOXON COM SINAL =====
+Comparação  Estatística W      p-valor               Conclusão
+   V1 × V2           89.0 2.440558e-17 Diferença significativa
+   V1 × V3          300.5 8.189269e-15 Diferença significativa
+   V2 × V3         1611.0 6.991209e-04 Diferença significativa
+
+===== RESUMO DOS TESTES DE WILCOXON ABSOLUTOS =====
+Comparação (abs)  W (abs)  p-valor (abs)         Conclusão (abs)
+         V1 × V2   1284.0   7.411706e-06 Diferença significativa
+         V1 × V3    708.5   1.527157e-10 Diferença significativa
+         V2 × V3   1563.0   3.849987e-04 Diferença significativa
