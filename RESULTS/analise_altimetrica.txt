@@ -45,3 +45,9 @@ Comparação (abs)  W (abs)  p-valor (abs)         Conclusão (abs)
          V1 × V2   1284.0   7.411706e-06 Diferença significativa
          V1 × V3    708.5   1.527157e-10 Diferença significativa
          V2 × V3   1563.0   3.849987e-04 Diferença significativa
+
+===== TESTE DE NEMENYI — COM SINAL × ABS =====
+Comparação (sinal)  Dif. Ranking (sinal) Conclusão (sinal)  Comparação (abs)  Dif. Ranking (abs) Conclusão (abs)
+ V1_diff × V2_diff              1.431373     Significativo V1_diff × V2_diff            0.607843   Significativo
+ V1_diff × V3_diff              1.156863     Significativo V1_diff × V3_diff            0.980392   Significativo
+ V2_diff × V3_diff              0.274510 Não significativo V2_diff × V3_diff            0.372549   Significativo

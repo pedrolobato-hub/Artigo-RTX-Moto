@@ -611,6 +611,8 @@ tabela_final = pd.concat([tabela_sinal, tabela_abs], axis=1)
 print("===== TESTE DE NEMENYI — COM SINAL × ABS =====\n")
 print(f"Critical Difference (sinal): {CD_sinal:.5f}")
 print(f"Critical Difference (abs):   {CD_abs:.5f}\n")
+escrever_no_arquivo("\n===== TESTE DE NEMENYI — COM SINAL × ABS =====")
+escrever_no_arquivo(tabela_final.to_string(index=False))
 
 #=======================================================================
 # 1. PEC ALTIMÉTRICO 
