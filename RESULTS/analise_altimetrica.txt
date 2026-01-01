@@ -51,3 +51,19 @@ Comparação (sinal)  Dif. Ranking (sinal) Conclusão (sinal)  Comparação (abs
  V1_diff × V2_diff              1.431373     Significativo V1_diff × V2_diff            0.607843   Significativo
  V1_diff × V3_diff              1.156863     Significativo V1_diff × V3_diff            0.980392   Significativo
  V2_diff × V3_diff              0.274510 Não significativo V2_diff × V3_diff            0.372549   Significativo
+===== AVALIAÇÃO DA PEC-PCD ALTIMÉTRICA (IN 1/2005) =====
+Escala do produto: 1:2000
+Média dos erros (viés): -0.0098 m
+Desvio padrão dos erros: 0.0233 m
+RMSE_z: 0.0252 m
+PEC-PCD_z (2 × RMSE): 0.0505 m
+IC 90% do RMSE_z: [0.0218, 0.0249] m
+IC 90% do PEC-PCD_z: [0.0437, 0.0499] m
+
+===== CLASSIFICAÇÃO POR CLASSE =====
+Classe A → RMSE_z ≤ 0.25 m (PEC ≤ 0.50 m) → ATENDE
+Classe B → RMSE_z ≤ 0.50 m (PEC ≤ 1.00 m) → ATENDE
+Classe C → RMSE_z ≤ 0.75 m (PEC ≤ 1.50 m) → ATENDE
+Classe D → RMSE_z ≤ 1.00 m (PEC ≤ 2.00 m) → ATENDE
+
+=> Melhor classe atendida: A

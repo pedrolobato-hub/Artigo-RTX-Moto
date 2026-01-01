@@ -7,6 +7,7 @@ from math import sqrt
 import string
 import os
 from pathlib import Path
+from scipy import stats
 
 #=======================================================================
 # 1.1 CAMINHOS, IMPORTAÇÕES E CONFIGURAÇÕES INICIAIS
@@ -445,12 +446,7 @@ def testar_normalidade_df(df):
     df_result = pd.DataFrame(resultados, columns=["Coluna", "W", "p", "Resultado"])
     return df_result
 
-# --- EXECUÇÃO ---
 df_normalidade = testar_normalidade_df(df_diff)
-
-# --- EXIBIÇÃO ---
-print("===== RESULTADOS DO TESTE DE NORMALIDADE (Shapiro–Wilk) =====")
-print(df_normalidade)
 escrever_no_arquivo("===== RESULTADOS DO TESTE DE NORMALIDADE (Shapiro–Wilk) =====")
 escrever_no_arquivo(df_normalidade.to_string(index=False))
 
@@ -464,11 +460,6 @@ stat_friedman, p_friedman = friedmanchisquare(
     df_diff['V2_diff'],
     df_diff['V3_diff']
 )
-
-# Exibe no console
-print("\n===== TESTE DE FRIEDMAN =====")
-print(f"Estatística Q = {stat_friedman:.6f}")
-print(f"p-valor = {p_friedman:.6f}")
 if p_friedman < 0.05:
     print("→ Diferença significativa entre os grupos (p < 0.05).")
 else:
@@ -530,15 +521,11 @@ if p_friedman < 0.05:
 
     # Salvar resultados do sinal
     df_wilcoxon_sinal = pd.DataFrame(resultados_sinal)
-    print("\n===== RESUMO DOS TESTES DE WILCOXON COM SINAL =====")
-    print(df_wilcoxon_sinal.to_string(index=False))
     escrever_no_arquivo("\n===== RESUMO DOS TESTES DE WILCOXON COM SINAL =====")
     escrever_no_arquivo(df_wilcoxon_sinal.to_string(index=False))
 
     # Salvar resultados do absoluto
     df_wilcoxon_abs = pd.DataFrame(resultados_abs)
-    print("\n===== RESUMO DOS TESTES DE WILCOXON ABSOLUTOS =====")
-    print(df_wilcoxon_abs.to_string(index=False))
     escrever_no_arquivo("\n===== RESUMO DOS TESTES DE WILCOXON ABSOLUTOS =====")
     escrever_no_arquivo(df_wilcoxon_abs.to_string(index=False))
 
@@ -608,56 +595,90 @@ tabela_abs = pd.DataFrame(resultados_abs,
 
 tabela_final = pd.concat([tabela_sinal, tabela_abs], axis=1)
 
-print("===== TESTE DE NEMENYI — COM SINAL × ABS =====\n")
-print(f"Critical Difference (sinal): {CD_sinal:.5f}")
-print(f"Critical Difference (abs):   {CD_abs:.5f}\n")
 escrever_no_arquivo("\n===== TESTE DE NEMENYI — COM SINAL × ABS =====")
 escrever_no_arquivo(tabela_final.to_string(index=False))
 
 #=======================================================================
-# 1. PEC ALTIMÉTRICO 
+# 11. PEC ALTIMÉTRICO 
 #=======================================================================
+# Tem suas bases em:
+# Especificação Técnica para Controle de Qualidade de Dados Geoespaciais (ET-CQDG).
+# 1) CONFIGURAÇÕES
+escala = 2000  # ajuste conforme seu caso
+alpha = 0.10
 
-# 1) CONFIGURAÇÃO 
-equid = 0.1    # Equidistancia
-alpha = 0.10   # nível de significância
+limites_pec_pcd = {
+    2000: {"A": 0.25, "B": 0.50, "C": 0.75, "D": 1.00},
+    5000: {"A": 0.50, "B": 1.00, "C": 1.50, "D": 2.00},
+    10000: {"A": 1.00, "B": 2.00, "C": 3.00, "D": 4.00},
+}
+# 2) DADOS
+df = df_diff.copy()
+erros_concat = pd.concat([df[c] for c in df.columns], ignore_index=True).dropna()
+delta_h = erros_concat.values
+n = len(delta_h)
 
-# 2) DATASET USADO (diferenças com sinal)
-df = df_diff.copy()          # V1_diff, V2_diff, V3_diff
-erro = df.mean(axis=1)
+if n == 0:
+    escrever_no_arquivo("ERRO: Nenhum dado válido encontrado em df_diff.")
+else:
+    # 3) CÁLCULOS
 
-# Vetor com TODOS os erros de todos os métodos combinados
-# (ou você pode aplicar sensor por sensor, se preferir)
-erros_concat = pd.concat([df[c] for c in df.columns], axis=0)
-erros = erros_concat.values
-n = len(erros)
+    rmse_z = np.sqrt(np.mean(delta_h**2))
+    pec_pcd_z = 2 * rmse_z
+    std_erro = np.std(delta_h, ddof=1)
+    media_erro = np.mean(delta_h)
 
-# 3) TABELA OFICIAL PEC (Equidistância → EP_alt)
-pec_classes = pd.DataFrame({
-    "Classe": ["A", "B", "C", "D"],
-    "Fator_EP": [1/6, 1/3, 2/5, 1/2]  # fatores oficiais PEC Altimetria
-})
+    # Intervalo de confiança para RMSE (via qui-quadrado)
+    if n > 1:
+        s2 = np.var(delta_h, ddof=1)
+        chi2_upper = stats.chi2.ppf(1 - alpha/2, df=n - 1)
+        chi2_lower = stats.chi2.ppf(alpha/2, df=n - 1)
+        rmse_lower = np.sqrt((n - 1) * s2 / chi2_upper) if chi2_upper > 0 else np.nan
+        rmse_upper = np.sqrt((n - 1) * s2 / chi2_lower) if chi2_lower > 0 else np.nan
+        pec_lower = 2 * rmse_lower
+        pec_upper = 2 * rmse_upper
+    else:
+        rmse_lower = rmse_upper = pec_lower = pec_upper = np.nan
 
-# EP absoluto para cada classe
-pec_classes["EP_alt"] = pec_classes["Fator_EP"] * equid
+    # 4) CLASSIFICAÇÃO
+    if escala not in limites_pec_pcd:
+        escrever_no_arquivo(f"ERRO: Escala 1:{escala} não suportada.")
+    else:
+        limites = limites_pec_pcd[escala]
+        classe_atendida = None
+        conclusoes = {}
 
-# 4) CÁLCULO DO QUI-QUADRADO PARA CADA CLASSE
-chi_critico = chi2.ppf(1 - alpha, df=n - 1)
+        for classe, rmse_limite in limites.items():
+            if rmse_z <= rmse_limite:
+                classe_atendida = classe
+                break
 
-chi_calculado = []
-conclusoes = []
+        for classe, rmse_limite in limites.items():
+            conclusoes[classe] = "ATENDE" if rmse_z <= rmse_limite else "NÃO ATENDE"
 
-for EP in pec_classes["EP_alt"]:
-    chi_val = np.sum((erros / EP)**2)
-    chi_calculado.append(chi_val)
+        # 5) ESCRITA NO ARQUIVO
+        escrever_no_arquivo("===== AVALIAÇÃO DA PEC-PCD ALTIMÉTRICA (IN 1/2005) =====")
+        escrever_no_arquivo(f"Escala do produto: 1:{escala}")
+        escrever_no_arquivo(f"Média dos erros: {media_erro:+.4f} m")
+        escrever_no_arquivo(f"Desvio padrão dos erros: {std_erro:.4f} m")
+        escrever_no_arquivo(f"RMSE_z: {rmse_z:.4f} m")
+        escrever_no_arquivo(f"PEC-PCD_z (2 × RMSE): {pec_pcd_z:.4f} m")
+        
+        if n > 1:
+            escrever_no_arquivo(f"IC {(1-alpha)*100:.0f}% do RMSE_z: [{rmse_lower:.4f}, {rmse_upper:.4f}] m")
+            escrever_no_arquivo(f"IC {(1-alpha)*100:.0f}% do PEC-PCD_z: [{pec_lower:.4f}, {pec_upper:.4f}] m")
+        else:
+            escrever_no_arquivo("IC não calculado (n ≤ 1).")
+        
+        escrever_no_arquivo("")
+        escrever_no_arquivo("===== CLASSIFICAÇÃO POR CLASSE =====")
+        
+        for classe, status in conclusoes.items():
+            rmse_max = limites[classe]
+            pec_max = 2 * rmse_max
+            escrever_no_arquivo(f"Classe {classe} → RMSE_z ≤ {rmse_max:.2f} m (PEC ≤ {pec_max:.2f} m) → {status}")
+        
+        classe_final = classe_atendida if classe_atendida else "Nenhuma"
+        escrever_no_arquivo(f"\n=> Melhor classe atendida: {classe_final}")
 
-    conclusoes.append("ATENDE" if chi_val < chi_critico else "NÃO ATENDE")
-
-pec_classes["χ²_calculado"] = chi_calculado
-pec_classes["χ²_critico"] = chi_critico
-pec_classes["Conclusão"] = conclusoes
-
-# 5) RESULTADO FINAL
-print("===== CLASSIFICAÇÃO PEC ALTIMÉTRICA =====")
-
-arquivo_saida.close()
+print("Terminou de rodar!")
