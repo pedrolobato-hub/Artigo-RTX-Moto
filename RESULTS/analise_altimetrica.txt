@@ -1,69 +1,78 @@
 === RESULTADOS DA ANÁLISE DE DIFERENÇAS ALTIMÉTRICAS ===
 
 df_alti.head():
-   PT       NIV         V1        V2         V3
-0   1  804.9540  804.81171  804.8190  804.78698
-1   2  804.9360  804.81283  804.8208  804.78687
-2   3  804.9375  804.79095  804.8129  804.78312
-3   4  804.9375  804.78145  804.8065  804.77104
-4   5  804.9090  804.76936  804.7909  804.74439
+   PT       NIV        1        2        3        4        5
+0   1  685.3575  686.873  686.752  686.856  686.803  686.834
+1   2  685.3605  686.884  686.757  686.867  686.816  686.846
+2   3  685.3735  686.893  686.784  686.880  686.830  686.865
+3   4  685.3815  686.917  686.790  686.884  686.840  686.883
+4   5  685.3780  686.916  686.786  686.881  686.846  686.883
 
 df_diff.head():
-   V1_diff  V2_diff  V3_diff
-0 -0.00429   0.0030 -0.02902
-1  0.01483   0.0228 -0.01113
-2 -0.00855   0.0134 -0.01638
-3 -0.01805   0.0070 -0.02846
-4 -0.00164   0.0199 -0.02661
+   1_diff  2_diff  3_diff  4_diff  5_diff
+0  1.6535  1.5325  1.6365  1.5835  1.6145
+1  1.6615  1.5345  1.6445  1.5935  1.6235
+2  1.6575  1.5485  1.6445  1.5945  1.6295
+3  1.6735  1.5465  1.6405  1.5965  1.6395
+4  1.6760  1.5460  1.6410  1.6060  1.6430
 
 df_diff_abs.head():
-   V1_diff  V2_diff  V3_diff
-0  0.00429   0.0030  0.02902
-1  0.01483   0.0228  0.01113
-2  0.00855   0.0134  0.01638
-3  0.01805   0.0070  0.02846
-4  0.00164   0.0199  0.02661
+   1_diff  2_diff  3_diff  4_diff  5_diff
+0  1.6535  1.5325  1.6365  1.5835  1.6145
+1  1.6615  1.5345  1.6445  1.5935  1.6235
+2  1.6575  1.5485  1.6445  1.5945  1.6295
+3  1.6735  1.5465  1.6405  1.5965  1.6395
+4  1.6760  1.5460  1.6410  1.6060  1.6430
 ===== RESULTADOS DO TESTE DE NORMALIDADE (Shapiro–Wilk) =====
- Coluna        W        p             Resultado
-V1_diff 0.985407 0.326118     Normal (p > 0.05)
-V2_diff 0.964324 0.007429 Não normal (p < 0.05)
-V3_diff 0.985956 0.357417     Normal (p > 0.05)
+Coluna        W            p             Resultado
+1_diff 0.980462 5.585587e-01     Normal (p > 0.05)
+2_diff 0.981886 6.213322e-01     Normal (p > 0.05)
+3_diff 0.963627 1.190936e-01     Normal (p > 0.05)
+4_diff 0.963158 1.137389e-01     Normal (p > 0.05)
+5_diff 0.758260 8.776549e-08 Não normal (p < 0.05)
 
 ===== TESTE DE FRIEDMAN =====
-Estatística Q = 117.725490
+Estatística Q = 94.627451
 p-valor = 0.000000
 → Diferença significativa entre os grupos (p < 0.05).
 
 ===== RESUMO DOS TESTES DE WILCOXON COM SINAL =====
 Comparação  Estatística W      p-valor               Conclusão
-   V1 × V2           89.0 2.440558e-17 Diferença significativa
-   V1 × V3          300.5 8.189269e-15 Diferença significativa
-   V2 × V3         1611.0 6.991209e-04 Diferença significativa
+     3 × 4            0.0 5.124070e-10 Diferença significativa
+     3 × 5           38.0 4.654936e-09 Diferença significativa
+     4 × 5            0.0 5.120729e-10 Diferença significativa
 
 ===== RESUMO DOS TESTES DE WILCOXON ABSOLUTOS =====
 Comparação (abs)  W (abs)  p-valor (abs)         Conclusão (abs)
-         V1 × V2   1284.0   7.411706e-06 Diferença significativa
-         V1 × V3    708.5   1.527157e-10 Diferença significativa
-         V2 × V3   1563.0   3.849987e-04 Diferença significativa
+           3 × 4      0.0   5.124070e-10 Diferença significativa
+           3 × 5     38.0   4.654936e-09 Diferença significativa
+           4 × 5      0.0   5.120729e-10 Diferença significativa
 
 ===== TESTE DE NEMENYI — COM SINAL × ABS =====
-Comparação (sinal)  Dif. Ranking (sinal) Conclusão (sinal)  Comparação (abs)  Dif. Ranking (abs) Conclusão (abs)
- V1_diff × V2_diff              1.431373     Significativo V1_diff × V2_diff            0.607843   Significativo
- V1_diff × V3_diff              1.156863     Significativo V1_diff × V3_diff            0.980392   Significativo
- V2_diff × V3_diff              0.274510 Não significativo V2_diff × V3_diff            0.372549   Significativo
+Comparação (sinal)  Dif. Ranking (sinal) Conclusão (sinal) Comparação (abs)  Dif. Ranking (abs)   Conclusão (abs)
+   1_diff × 2_diff              3.254902     Significativo  1_diff × 2_diff            3.254902     Significativo
+   1_diff × 3_diff              1.176471     Significativo  1_diff × 3_diff            1.176471     Significativo
+   1_diff × 4_diff              2.254902     Significativo  1_diff × 4_diff            2.254902     Significativo
+   1_diff × 5_diff              0.411765 Não significativo  1_diff × 5_diff            0.411765 Não significativo
+   2_diff × 3_diff              2.078431     Significativo  2_diff × 3_diff            2.078431     Significativo
+   2_diff × 4_diff              1.000000     Significativo  2_diff × 4_diff            1.000000     Significativo
+   2_diff × 5_diff              3.666667     Significativo  2_diff × 5_diff            3.666667     Significativo
+   3_diff × 4_diff              1.078431     Significativo  3_diff × 4_diff            1.078431     Significativo
+   3_diff × 5_diff              1.588235     Significativo  3_diff × 5_diff            1.588235     Significativo
+   4_diff × 5_diff              2.666667     Significativo  4_diff × 5_diff            2.666667     Significativo
 ===== AVALIAÇÃO DA PEC-PCD ALTIMÉTRICA (IN 1/2005) =====
 Escala do produto: 1:2000
-Média dos erros (viés): -0.0098 m
-Desvio padrão dos erros: 0.0233 m
-RMSE_z: 0.0252 m
-PEC-PCD_z (2 × RMSE): 0.0505 m
-IC 90% do RMSE_z: [0.0218, 0.0249] m
-IC 90% do PEC-PCD_z: [0.0437, 0.0499] m
+Média dos erros: +1.6295 m
+Desvio padrão dos erros: 0.0524 m
+RMSE_z: 1.6304 m
+PEC-PCD_z (2 × RMSE): 3.2607 m
+IC 90% do RMSE_z: [0.0489, 0.0566] m
+IC 90% do PEC-PCD_z: [0.0978, 0.1131] m
 
 ===== CLASSIFICAÇÃO POR CLASSE =====
-Classe A → RMSE_z ≤ 0.25 m (PEC ≤ 0.50 m) → ATENDE
-Classe B → RMSE_z ≤ 0.50 m (PEC ≤ 1.00 m) → ATENDE
-Classe C → RMSE_z ≤ 0.75 m (PEC ≤ 1.50 m) → ATENDE
-Classe D → RMSE_z ≤ 1.00 m (PEC ≤ 2.00 m) → ATENDE
+Classe A → RMSE_z ≤ 0.25 m (PEC ≤ 0.50 m) → NÃO ATENDE
+Classe B → RMSE_z ≤ 0.50 m (PEC ≤ 1.00 m) → NÃO ATENDE
+Classe C → RMSE_z ≤ 0.75 m (PEC ≤ 1.50 m) → NÃO ATENDE
+Classe D → RMSE_z ≤ 1.00 m (PEC ≤ 2.00 m) → NÃO ATENDE
 
-=> Melhor classe atendida: A
+=> Melhor classe atendida: Nenhuma
