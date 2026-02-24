@@ -20,10 +20,12 @@ pasta_resultados.mkdir(exist_ok=True)
 
 # Carrega o arquivo de dados
 file_path = script_dir / 'diferenca_altimetria_clean.xlsx'
-df_alti = pd.read_excel(file_path, sheet_name=None)
+
+df_alti = pd.read_excel(file_path, header=0, sheet_name=None)
+
 
 # Configurações
-multiplicador = 1  # 1 = metros | 100 = cm | 1000 = mm
+multiply = 1  # 1 = metros | 100 = cm | 1000 = mm
 
 for nome_sheet, df_alti in df_alti.items():
 
@@ -31,18 +33,34 @@ for nome_sheet, df_alti in df_alti.items():
     # 1.2 PROCESSAMENTO DOS DATAFRAMES
     #=======================================================================
     # Lista de colunas
-    col_list = df_alti.columns.tolist()
+    df_dict = pd.read_excel(file_path, sheet_name=None)
+
+    for nome_sheet, df_alti in df_dict.items():
+        df_alti.columns = ['PT', 'NIV', 'G1', 'G2', 'G3', 'M1', 'M2', 'M3']
 
     # Tratamentos (colunas a partir da terceira: V1, V2, V3, ...)
-    trats = col_list[2:]
-    const = 0.138  # constante de correção
+    trats = ['G1','G2','G3','M1','M2','M3']
+    const_column = {
+        "G1": 1.407,
+        "G2": 1.407,
+        "G3": 1.407,
+        "M1": 1.890,
+        "M2": 1.862,
+        "M3": 1.880
+    }     
 
     # DataFrame das diferenças
-    df_diff = pd.DataFrame(index=df_alti.index)
-    for trat in trats:
-        df_diff[f"{trat}_diff"] = (df_alti[trat] - df_alti['NIV'] + const) * multiplicador
 
-    # DataFrame das diferenças em módulo (valor absoluto)
+    df_diff = pd.DataFrame(index=df_alti.index)
+
+    for trat in trats:
+        const = const_column.get(trat, 0)
+
+        df_diff[f"{trat}_diff"] = (
+            (df_alti[trat] - df_alti['NIV']) - const
+        ) * multiply
+
+    # Diferenças absolutas
     df_diff_abs = df_diff.abs()
 
     #=======================================================================
@@ -325,12 +343,12 @@ for nome_sheet, df_alti in df_alti.items():
     plt.ylim(0, all_freq.max() * 1.1)
     plt.xlim(xmin_global, all_bins.max() * 1.1)
 
+    
+    plt.grid(True, linestyle=':')
+    plt.legend()
 
     # --- Salvar figura ---
     plt.savefig(f"{pasta_resultados}/Distribuicao_frequencia.png", dpi=300, bbox_inches='tight')
-
-    plt.grid(True, linestyle=':')
-    plt.legend()
 
     #===============================================================================
 
@@ -361,7 +379,7 @@ for nome_sheet, df_alti in df_alti.items():
     bins_c_dict = {}
     cum_c_dict = {}
 
-    for col in df_diff_abs.columns[1:]:
+    for col in df_diff_abs.columns:
         bins_c_dict[col], cum_c_dict[col] = freq_acumulada_classes(
             df_diff_abs[col], bins
     )
@@ -551,7 +569,7 @@ for nome_sheet, df_alti in df_alti.items():
         R = rankings.mean()
 
         # Tabela de valores críticos (α = 0.05)
-        q_criticos = {3: 2.343, 4: 2.569, 5: 2.728}
+        q_criticos = {3: 2.343, 4: 2.569, 5: 2.728, 6:2.850, 7:2.949, 8:3.031, 9:3.102, 10:3.164}
         q = q_criticos[k]
 
         
