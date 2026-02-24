@@ -36,14 +36,13 @@ for nome_sheet, df_alti in df_alti.items():
     df_dict = pd.read_excel(file_path, sheet_name=None)
 
     for nome_sheet, df_alti in df_dict.items():
-        df_alti.columns = ['PT', 'NIV', 'M1', 'M2', 'M3']
+        df_alti.columns = ['PT', 'NIV', 'G', 'M']
 
     # Tratamentos (colunas a partir da terceira: V1, V2, V3, ...)
-    trats = ['M1','M2','M3']
+    trats = ['G','M']
     const_column = {
-        "M1": 1.890,
-        "M2": 1.862,
-        "M3": 1.880,
+        "G": 1.407,
+        "M": 1.8773,
     }     
 
     # DataFrame das diferenças
