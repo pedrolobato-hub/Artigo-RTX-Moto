@@ -36,17 +36,14 @@ for nome_sheet, df_alti in df_alti.items():
     df_dict = pd.read_excel(file_path, sheet_name=None)
 
     for nome_sheet, df_alti in df_dict.items():
-        df_alti.columns = ['PT', 'NIV', 'G1', 'G2', 'G3', 'M1', 'M2', 'M3']
+        df_alti.columns = ['PT', 'NIV', 'G1', 'G2', 'G3']
 
     # Tratamentos (colunas a partir da terceira: V1, V2, V3, ...)
-    trats = ['G1','G2','G3','M1','M2','M3']
+    trats = ['G1','G2','G3']
     const_column = {
         "G1": 1.407,
         "G2": 1.407,
         "G3": 1.407,
-        "M1": 1.890,
-        "M2": 1.862,
-        "M3": 1.880
     }     
 
     # DataFrame das diferenças
@@ -685,8 +682,8 @@ for nome_sheet, df_alti in df_alti.items():
             else:
                 escrever_no_arquivo("IC não calculado (n ≤ 1).")
             
-            escrever_no_arquivo(f"Erro absoluto correspondente a 90% (P90): {p90:.4f} m")
             escrever_no_arquivo("")
+            escrever_no_arquivo(f"Erro absoluto correspondente a 90% (P90): {p90:.4f} m")
             escrever_no_arquivo("===== CLASSIFICAÇÃO POR CLASSE =====")
             
             for classe, status in conclusoes.items():
