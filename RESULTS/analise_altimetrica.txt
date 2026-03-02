@@ -1,7 +1,7 @@
 === RESULTADOS DA ANÁLISE DE DIFERENÇAS ALTIMÉTRICAS ===
 
 df_alti.head():
-   PT       NIV        G1          G2        G3
+   PT       NIV        M1          M2        M3
 0   1  685.3575  687.3129  687.300725  687.3221
 1   2  685.3605  687.3262  687.319275  687.3463
 2   3  685.3735  687.3372  687.330450  687.3502
@@ -9,73 +9,73 @@ df_alti.head():
 4   5  685.3780  687.3435  687.339225  687.3561
 
 df_diff.head():
-   G1_diff   G2_diff  G3_diff
-0   0.5484  0.536225   0.5576
-1   0.5587  0.551775   0.5788
-2   0.5567  0.549950   0.5697
-3   0.5596  0.550200   0.5688
-4   0.5585  0.554225   0.5711
+   M1_diff   M2_diff  M3_diff
+0   0.0654  0.081225   0.0846
+1   0.0757  0.096775   0.1058
+2   0.0737  0.094950   0.0967
+3   0.0766  0.095200   0.0958
+4   0.0755  0.099225   0.0981
 
 df_diff_abs.head():
-   G1_diff   G2_diff  G3_diff
-0   0.5484  0.536225   0.5576
-1   0.5587  0.551775   0.5788
-2   0.5567  0.549950   0.5697
-3   0.5596  0.550200   0.5688
-4   0.5585  0.554225   0.5711
+   M1_diff   M2_diff  M3_diff
+0   0.0654  0.081225   0.0846
+1   0.0757  0.096775   0.1058
+2   0.0737  0.094950   0.0967
+3   0.0766  0.095200   0.0958
+4   0.0755  0.099225   0.0981
 
 ESTATÍSTICA DESCRITIVA df_diff (df_diff.describe()):
-         G1_diff    G2_diff    G3_diff
+         M1_diff    M2_diff    M3_diff
 count  51.000000  51.000000  51.000000
-mean    0.563388   0.554562   0.570910
+mean    0.080388   0.099562   0.097910
 std     0.007182   0.005759   0.007183
-min     0.546800   0.536225   0.552500
-25%     0.558600   0.551150   0.566650
-50%     0.563900   0.554225   0.570900
-75%     0.567300   0.558813   0.575650
-max     0.578200   0.564700   0.583200
+min     0.063800   0.081225   0.079500
+25%     0.075600   0.096150   0.093650
+50%     0.080900   0.099225   0.097900
+75%     0.084300   0.103813   0.102650
+max     0.095200   0.109700   0.110200
 ===== RESULTADOS DO TESTE DE NORMALIDADE (Shapiro–Wilk) =====
  Coluna        W        p         Resultado
-G1_diff 0.983283 0.684502 Normal (p > 0.05)
-G2_diff 0.963305 0.115390 Normal (p > 0.05)
-G3_diff 0.980104 0.543244 Normal (p > 0.05)
+M1_diff 0.983283 0.684502 Normal (p > 0.05)
+M2_diff 0.963305 0.115390 Normal (p > 0.05)
+M3_diff 0.980104 0.543244 Normal (p > 0.05)
 
 ===== TESTE DE FRIEDMAN =====
-Estatística Q = 89.215686
+Estatística Q = 78.705882
 p-valor = 0.000000
 → Diferença significativa entre os grupos (p < 0.05).
 
 ===== RESUMO DOS TESTES DE WILCOXON COM SINAL =====
 Comparação  Estatística W      p-valor               Conclusão
-   G1 × G2            2.5 5.970453e-10 Diferença significativa
-   G1 × G3           47.0 7.735675e-09 Diferença significativa
-   G2 × G3            0.0 5.145276e-10 Diferença significativa
+   M1 × M2            0.0 5.145276e-10 Diferença significativa
+   M1 × M3            0.0 5.143040e-10 Diferença significativa
+   M2 × M3          358.0 4.251029e-03 Diferença significativa
 
 ===== RESUMO DOS TESTES DE WILCOXON ABSOLUTOS =====
 Comparação (abs)  W (abs)  p-valor (abs)         Conclusão (abs)
-         G1 × G2      2.5   5.970453e-10 Diferença significativa
-         G1 × G3     47.0   7.735675e-09 Diferença significativa
-         G2 × G3      0.0   5.145276e-10 Diferença significativa
+         M1 × M2      0.0   5.145276e-10 Diferença significativa
+         M1 × M3      0.0   5.143040e-10 Diferença significativa
+         M2 × M3    358.0   4.251029e-03 Diferença significativa
 
 ===== TESTE DE NEMENYI — COM SINAL × ABS =====
-Comparação (sinal)  Dif. Ranking (sinal) Conclusão (sinal)  Comparação (abs)  Dif. Ranking (abs) Conclusão (abs)
- G1_diff × G2_diff              1.078431     Significativo G1_diff × G2_diff            1.078431   Significativo
- G1_diff × G3_diff              0.784314     Significativo G1_diff × G3_diff            0.784314   Significativo
- G2_diff × G3_diff              1.862745     Significativo G2_diff × G3_diff            1.862745   Significativo
+Comparação (sinal)  Dif. Ranking (sinal) Conclusão (sinal)  Comparação (abs)  Dif. Ranking (abs)   Conclusão (abs)
+ M1_diff × M2_diff              1.647059     Significativo M1_diff × M2_diff            1.647059     Significativo
+ M1_diff × M3_diff              1.352941     Significativo M1_diff × M3_diff            1.352941     Significativo
+ M2_diff × M3_diff              0.294118 Não significativo M2_diff × M3_diff            0.294118 Não significativo
 ===== AVALIAÇÃO DA PEC-PCD ALTIMÉTRICA (IN 1/2005) =====
 Escala do produto: 1:2000
-Média dos erros: +0.5630 m
-Desvio padrão dos erros: 0.0095 m
-RMSE_z: 0.5630 m
-PEC-PCD_z (2 × RMSE): 1.1261 m
-IC 90% do RMSE_z: [0.0087, 0.0105] m
-IC 90% do PEC-PCD_z: [0.0173, 0.0209] m
+Média dos erros: +0.0926 m
+Desvio padrão dos erros: 0.0110 m
+RMSE_z: 0.0933 m
+PEC-PCD_z (2 × RMSE): 0.1865 m
+IC 90% do RMSE_z: [0.0100, 0.0121] m
+IC 90% do PEC-PCD_z: [0.0201, 0.0243] m
+Erro absoluto correspondente a 90% (P90): 0.1062 m
 
-Erro absoluto correspondente a 90% (P90): 0.5759 m
 ===== CLASSIFICAÇÃO POR CLASSE =====
-Classe A → RMSE_z ≤ 0.25 m (PEC ≤ 0.50 m) → NÃO ATENDE
-Classe B → RMSE_z ≤ 0.50 m (PEC ≤ 1.00 m) → NÃO ATENDE
+Classe A → RMSE_z ≤ 0.25 m (PEC ≤ 0.50 m) → ATENDE
+Classe B → RMSE_z ≤ 0.50 m (PEC ≤ 1.00 m) → ATENDE
 Classe C → RMSE_z ≤ 0.75 m (PEC ≤ 1.50 m) → ATENDE
 Classe D → RMSE_z ≤ 1.00 m (PEC ≤ 2.00 m) → ATENDE
 
-=> Melhor classe atendida: C
+=> Melhor classe atendida: A
